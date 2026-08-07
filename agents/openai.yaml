@@ -1,0 +1,4 @@
+interface:
+  display_name: "Minecraft GUI Name & Lore"
+  short_description: "Design concise Minecraft GUI names and lore"
+  default_prompt: "Use $minecraft-gui-lore to design or revise this Minecraft GUI name and lore."
