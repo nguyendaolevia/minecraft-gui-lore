@@ -3,7 +3,7 @@
 ## Contents
 
 1. [Purpose](#1-purpose)
-2. [Hard requirements](#2-hard-requirements)
+2. [Copy and layout standards](#2-copy-and-layout-standards)
 3. [Typography and decoration](#3-typography-and-decoration)
 4. [Color system](#4-color-system)
 5. [Spacing](#5-spacing)
@@ -23,45 +23,65 @@ Make Minecraft GUI names and lore:
 - Distinctive without becoming noisy.
 - Consistent across items with the same role.
 
-## 2. Hard requirements
+## 2. Copy and layout standards
 
-### 2.1 Do not overuse bold
+### 2.1 Use bold by role, not by default
 
-- Do not use `&l` as the default format.
-- Do not bold an entire name or several consecutive lore lines.
-- Consider bold only for a short word or phrase that genuinely requires extra
-  emphasis.
-- Prefer wording, line position, and color hierarchy before bold.
+Bold is neither banned nor a default. Decide by the role of the text:
+
+- **May be bold:** a short, prominent item name; a short section label; a
+  primary CTA or badge of about four words or fewer.
+- **Never bold:** descriptions, label/value data rows, long lines, requirement
+  sentences, or several consecutive lore lines.
+- Keep at most about two bold regions per tooltip. If the tooltip already has
+  enough focal points from color and structure, skip bold.
+- Equivalent elements across related items share the same bold decision.
+- Prefer wording, line position, and color hierarchy first; bold is the last
+  emphasis layer. Inventory titles follow the separate rule in section 7.
 
 ### 2.2 Balance visible character length
 
-- Keep seven displayed words as an emergency ceiling, not the main target.
-- For descriptive lore, aim for roughly 25 visible characters per line.
+- Prefer about 23 visible Unicode characters or fewer per item display name and
+  lore line, including spaces and decoration. This is a priority density target,
+  not an absolute cap. Exceed it when needed to preserve clear meaning, natural
+  phrasing, or the mandatory visual justification of related lore lines.
+- Do not count legacy color codes, hex prefixes, MiniMessage tags, or other
+  non-rendered formatting syntax. Normalize text to NFC and count Unicode code
+  points rather than UTF-16 units.
+- Count placeholders after expansion. Inspect realistic long values and reflow
+  the group if needed; do not truncate names or meaningful data merely to hit 23.
+  If expansion cannot be bounded, disclose the unverified layout range.
+- Priority order: mandatory visual justification first, then the 23-character
+  density target.
+- Two length tiers:
+  - **Data tier** — names, label/value rows, rewards, prices, CTAs: about 23
+    characters, seven displayed words as the emergency ceiling.
+  - **Description tier** — wrapped descriptive paragraphs: may extend to about
+    32–36 characters (about nine displayed Vietnamese words) when that produces
+    a better justified, more natural block than breaking at 23.
+- Keep seven displayed words as a secondary emergency ceiling for the data tier,
+  not the main measurement.
 - Within one descriptive group, keep neighboring lines within about two visible
   characters when natural phrasing allows.
 - Shorten long copy or split it at a natural phrase boundary.
 - Keep closely related words together.
-- Evaluate the rendered value of placeholders, not only their short config token.
-- Do not use decorative characters or unusual tokenization to evade the limit.
-- Treat dynamic placeholders, command examples, and click instructions as
-  exceptions: keep them clear and intact, then balance visually as much as the
-  functional text permits.
-- Do not split a short click instruction into separate label and action lines
-  merely to satisfy the descriptive-line target. If the combined action line is
-  the longest natural unit, keep it whole and balance nearby lore around that
-  line's visual width.
-- Click, command, placeholder, and value lines may exceed the descriptive target
-  by roughly five visible characters when splitting would look awkward or weaken
-  the interaction rhythm.
+- Do not distort words or add decoration to manipulate the character count.
+- Commands, click instructions, values, and placeholders share the same preferred
+  target and the same allowance for clear meaning and balanced layout.
 
-Word count alone is insufficient. A seven-word line with short words can be
-fine, while a six-word line with long Vietnamese words may feel too wide.
-Minecraft also uses proportional glyph widths, so character count is still a
-proxy; screenshots remain the best evidence.
+The 23-character target guides density, not exact pixel width. Minecraft uses a
+proportional font, so two lines with equal character counts can still render at
+different widths. Screenshots remain the best evidence for final alignment.
 
-### 2.3 Balance the layout visually
+### 2.3 Mandatory visual justification of related lore
 
-- Keep neighboring lines reasonably balanced in rendered pixel width.
+- Consecutive lore lines in the same semantic group must be visually justified:
+  balanced in rendered width with a consistent left edge. This includes related
+  fact rows, wrapped descriptions, requirement sentences, and their final lines.
+- Rephrase or redistribute phrases across the whole group until it reads evenly.
+  An obviously uneven group is unfinished even if every line is within 23
+  characters. Prefer a natural line above 23 over a forced break that unbalances
+  the group; preserve meaning and the secondary word ceiling.
 - Within the same semantic group, aim for neighboring lines to differ by no more
   than roughly 20–25% in rendered width when accurate wording permits.
 - Across the whole tooltip, avoid an isolated line shorter than roughly two-thirds
@@ -69,18 +89,42 @@ proxy; screenshots remain the best evidence.
 - Avoid placing one very long line among several very short lines unless it
   creates a deliberate hierarchy.
 - Keep the same structural pattern for items with the same function.
-- Do not insert spaces to force both edges into alignment.
+- Do not insert spaces to force both edges into alignment. The only exception
+  is a render-verified centered name line (`pattern-library.md`, H4).
 
-Minecraft tooltips do not support true justified alignment. Interpret “justify”
-as visual balance after rendering.
+Standard tooltip lore has no paragraph-justification setting. Here, mandatory
+"justify align" means visual justification through wording and line breaks,
+verified after rendering, rather than automatic expansion of spaces. Exact equal
+pixel widths are not assumed. Without a render, report alignment as unverified.
 
 The percentage targets are review heuristics, not a reason to distort meaning.
 Prefer rewriting or moving a phrase over adding filler words or spaces.
+Compare consecutive related lines within their own block. A separate short
+section label or item name need not match the width of data rows. A requirement
+footer is a separate group, but its own related lines still require justification.
+Recheck pixel balance when mixing normal and tiny fonts.
 
 Before changing spacing, font, or decoration, look for a shorter phrase with the
 same meaning. Rephrase at the semantic level first. For example, when the menu
 context already establishes that rewards are items, `xem trước vật phẩm` is
 clearer and easier to balance than `xem trước phần thưởng`.
+
+### 2.4 Whole-tooltip width harmony
+
+Justifying each group is not enough; the final tooltip must look even as a
+whole.
+
+- Choose one width band for the tooltip and keep every content block near it.
+  A description block of 36-character lines followed by a data block of
+  20-character lines is unbalanced and unfinished.
+- When the description must be wide, enrich or rephrase the data rows (fuller
+  labels, value context) or narrow the description so blocks meet in the middle.
+  When the data is short, wrap the description narrower rather than stretching
+  it to 36.
+- Short section labels, a short name, and a compact CTA may sit below the band;
+  data and description blocks may not diverge sharply from each other.
+- Exceeding 23 characters is acceptable only when the resulting whole tooltip
+  is visibly more even and readable. Judge the full render, not single lines.
 
 ## 3. Typography and decoration
 
@@ -97,11 +141,33 @@ clearer and easier to balance than `xem trước phần thưởng`.
 
 ### 3.2 Tiny font
 
-- Use tiny font selectively for labels, classifications, or secondary metadata.
-- Do not use it for primary instructions or information that must be read quickly.
-- Verify Vietnamese diacritics, punctuation, and symbols against the active
-  resource pack.
-- Fall back to normal text when a glyph is missing or hard to read.
+Choose the font by the role and reading priority of the content:
+
+| Content role | Default | Optional variation |
+| --- | --- | --- |
+| Item name | Normal | Existing verified identity font |
+| Short secondary section label | Normal | Tiny when clear and supported |
+| Labels, values, stats, rewards | Normal | Tiny only for genuinely secondary metadata |
+| Requirements, prices, warnings, click instructions | Normal | Keep decision-critical content immediately readable |
+
+- Normal font throughout is valid. Mixed typography is an option, not a quota;
+  a useful combination is tiny section labels above normal data rows.
+- Give equivalent headings the same treatment across related items. Do not
+  alternate fonts line by line or split a label/value row between sizes without
+  same-surface evidence that the baseline and hierarchy remain clear.
+- Tiny font may come from a resource-pack provider or Unicode substitutions;
+  these have different glyph coverage. Do not assume that a small-cap converter
+  supports Vietnamese, or remove accents to make a label fit its character set.
+- Verify Vietnamese diacritics, punctuation, baseline, and contrast in the actual
+  tooltip at the intended GUI scale. If support or readability is unverified,
+  retain the established font; if tiny text fails, use normal font.
+- Apply the same preferred 23-character target in either font. Font choice must
+  serve information hierarchy; shrinking text does not replace mandatory visual
+  justification, and fewer pixels do not make a requirement secondary.
+- Distinguish a lore section label from an inventory title. Short uppercase lore
+  labels can be a deliberate verified style, but normal Vietnamese labels are a
+  readable default; tiny font does not require uppercase text. Inventory titles
+  follow the separate Title Case rule in section 7.
 
 ### 3.3 Unicode
 
@@ -176,8 +242,8 @@ readable while giving players something to lock onto at a glance.
 Example:
 
 ```text
-<gray>Có thể nhận lại sau: <gold>{remaining}
-<gray>Trạng thái: <green>Sẵn sàng nhận
+<gray>Còn lại: <gold>{remaining}
+<gray>Trạng thái: <green>Sẵn sàng
 ```
 
 ### 4.3 Use a restrained color budget
@@ -192,8 +258,10 @@ For a multi-block item tooltip, default to:
   supporting accent where its role already matches instead of adding another
   color.
 
-A gradient counts as the primary accent. Do not assign a different color to each
-line. Supporting accents must repeat by meaning, not by position. If the tooltip
+A gradient counts as the primary accent. Colors from a server-wide resource
+color registry (see `pattern-library.md`, V1) mark resource values and do not
+count against the accent budget, provided labels stay neutral. Do not assign a
+different color to each line. Supporting accents must repeat by meaning, not by position. If the tooltip
 feels colorful before the reader notices its hierarchy, reduce the palette.
 
 Avoid the opposite failure as well: repeating one accent for every highlighted
@@ -244,13 +312,68 @@ mapping across related items.
 
 Excessive spacing makes the tooltip feel fragmented rather than organized.
 
-### 5.1 Optional compact click hints
+For richer header, grouping, value, and CTA patterns (bracketed names, category
+subtitles, accent bars, resource color registry, mouse-glyph CTAs, role-based
+recipes), read [pattern-library.md](pattern-library.md). Choose patterns by item
+role; do not apply one pattern to every slot.
+
+### 5.1 Optional segmented information lore
+
+Use this pattern for items with several distinct questions to answer, such as
+where an ore occurs, what it drops, and which tool is required. The ore references
+work through hierarchy and repeated structure, not through a mandatory number of
+sections or exact colors.
+
+- Start with the normal-font item name. Add a short label only when it helps
+  identify a genuine group; do not repeat information already clear from context.
+- Group related facts into short label/value rows. Keep labels gray and emphasize
+  values by semantic role, such as location, rarity, quantity, or state.
+- Give rewards their own block when they are distinct from the item's properties.
+  Use an established bullet consistently for peer entries; a wrapped continuation
+  is still the same entry and does not need another bullet or space padding.
+- Separate independent groups with one blank line. A single compact action can
+  use the click-hint pattern without section headings or extra blocks.
+- Keep requirements in a clear normal-font line or footer with the decisive tool
+  or condition highlighted. Do not copy a reference's low-contrast dark footer
+  merely because its placement looks attractive. For a costly or blocked action,
+  place its condition before the action or reward when needed for the decision.
+- Reuse the structure for items with the same role, while omitting absent fields
+  and empty sections. Avoid importing reference mechanics or values as facts
+  about the target server.
+
+Example of visible copy (all lines are within 23 characters):
+
+```text
+Quặng Orichalcum
+
+Thông tin
+- Độ cao: -32 đến 32
+- Thế giới: Overworld
+- Độ hiếm: Hiếm
+
+Nhận được
+- Thỏi Orichalcum
+
+Cần cuốc Mythril
+hoặc cấp cao hơn.
+```
+
+The values illustrate layout, not verified server mechanics. `Thông tin` and
+`Nhận được` may use tiny font only with verified Vietnamese support; all other
+lines use normal font. Render labels and connective text in gray, with selected
+values in white or existing semantic accents. The hyphen is an example marker,
+not authorization to add an unverified glyph to a live GUI. This is visible copy,
+not serializer syntax; apply the target plugin's verified font and color format.
+This copy has not been rendered in the target client; its group justification
+must still be checked against the active font, including the requirement footer.
+
+### 5.2 Optional compact click hints
 
 For a button with one short, obvious action, consider a compact single-line hint
 such as:
 
 ```text
-&#6DD770 ➟ Dịch chuyển &7[Chuột Trái]
+&#6DD770➟ Đi tới &7[Chuột trái]
 ```
 
 Treat this as an option, not a required template for every button. It works best
@@ -261,7 +384,7 @@ when:
 - Neighboring items with the same role use the same interaction pattern.
 
 Prefer a label-first instruction such as
-`&#6DD770Chuột trái: &fDịch chuyển` when the item supports multiple click types,
+`&#6DD770Chuột trái: &fĐi tới` when the item supports multiple click types,
 the action is costly or destructive, or the player needs conditions explained
 before clicking. Preserve the serializer and established GUI style, and verify
 that the arrow and Vietnamese glyphs render in the active client/resource pack.
@@ -304,6 +427,8 @@ Inventory titles and item tooltips can sit on different backgrounds:
 - Inventory titles may render on a bright white or light-gray panel supplied by
   a resource pack. Prefer a dark neutral title unless the actual panel proves a
   light accent readable.
+- Use Title Case for inventory/menu titles, with no leading spaces and no ALL
+  CAPS. Lore section labels are a separate surface, as described in section 3.2.
 - Do not add `&l` to an inventory title by default. Use title boldness only when
   the user explicitly asks for it, when that exact menu style already establishes
   it, or when a same-surface render proves it improves readability.
@@ -317,12 +442,15 @@ on a dark tooltip can become unreadable on a white inventory header.
 ## 8. Design sequence
 
 1. Identify each text surface and its real background.
-2. Determine the meaning and player action.
+2. Determine the meaning, player action, and item role; pick a recipe from
+   `pattern-library.md` that fits the role.
 3. Write the shortest accurate copy; rephrase long wording before styling.
 4. Split at natural phrase boundaries.
-5. Keep descriptive lore near 25 visible characters per line.
-6. Keep neighboring descriptive lines within roughly two visible characters when
-   natural phrasing allows.
+5. Prefer about 23 visible Unicode characters per name or lore line; allow longer
+   lines when clarity, natural phrasing, or group justification calls for it.
+6. Visually justify all consecutive related lore lines, including final lines,
+   by rephrasing and reflowing; verify pixel widths rather than just counts.
+   Then check that all blocks share one width band across the whole tooltip.
 7. Assign Minecraft gray/white as the neutral base, one primary accent, and at
    most two supporting accents with stable semantic roles.
 8. Disable inherited italics for item metadata.
@@ -345,27 +473,39 @@ Lore:
 <gray>Chứa <primary>vật phẩm đại dương</primary></gray>
 <gray>Nhận lại sau <value>24 giờ</value></gray>
 
-<positive>Chuột trái:</positive> <white>nhận vật phẩm</white>
-<attention>Chuột phải:</attention> <white>xem trước vật phẩm</white>
+<positive>Chuột trái:</positive> <white>nhận đồ</white>
+<attention>Chuột phải:</attention> <white>xem trước</white>
 ```
 
-This example keeps each line below seven words, uses one gradient region, gives
-the emphasized reward phrase a semantic role, and reserves the blank line for a
-real boundary before the interaction instruction.
+This example keeps each line within the preferred character target and secondary
+word ceiling, gives the emphasized reward phrase a semantic role, and reserves
+the blank line for a real boundary before the interaction instruction. The tags
+are conceptual; final group justification remains unverified without a render.
 
 ## 10. Final checklist
 
-- [ ] Descriptive lore lines sit near 25 visible characters when practical.
+- [ ] Names and lore use 23 visible characters as the preferred density target;
+      longer lines serve clear meaning, natural phrasing, or group justification.
+- [ ] Formatting syntax is excluded and placeholder expansions are included in
+      the visible-character count.
 - [ ] Neighboring descriptive lines differ by no more than about two visible
       characters when natural phrasing allows.
-- [ ] Click instructions remain whole when splitting would make the tooltip look
-      awkward; the longest natural action line is used as a balancing anchor.
-- [ ] Every rendered line stays under the seven-word emergency ceiling.
-- [ ] Placeholder expansion does not break the line limit.
-- [ ] `&l` is absent or used only for a justified short emphasis.
+- [ ] Click instructions are concise and split naturally where useful, without
+      treating 23 characters as an absolute cap.
+- [ ] Data-tier lines stay under the seven-word emergency ceiling; description
+      lines beyond 23 characters (up to about 32–36) are justified as a group.
+- [ ] The whole tooltip sits in one width band; description and data blocks do
+      not diverge sharply.
+- [ ] Patterns were chosen by item role; peers share one recipe and no tooltip
+      stacks more than about three structural devices.
+- [ ] Realistic placeholder expansions preserve readability and group layout;
+      any unverified expansion range is disclosed.
+- [ ] Bold appears only on a short name, section label, CTA, or badge, in at most
+      about two regions per tooltip, and never on descriptions or data rows.
 - [ ] Inventory titles are not bolded by default.
 - [ ] Item names and lore explicitly render non-italic unless intentional.
-- [ ] Lines are balanced by visual width, not merely word count.
+- [ ] All consecutive related lore lines, including final continuations, meet
+      mandatory visual justification; render evidence or its absence is stated.
 - [ ] Neighboring lines in one group stay near the 20–25% width target.
 - [ ] Line breaks preserve natural meaning.
 - [ ] Needlessly long wording was rephrased before layout or decoration changes.
@@ -380,6 +520,8 @@ real boundary before the interaction instruction.
       supporting accents by default.
 - [ ] Supporting accents have stable roles and create useful color rhythm rather
       than random variety.
+- [ ] Keyword highlights are not all forced into the item display-name color when
+      a harmonious supporting color would improve scanning.
 - [ ] Distinct semantic blocks are not all highlighted with one monotonous color
       when another role-based accent would improve scanning.
 - [ ] Accent colors mark only important content.
@@ -387,6 +529,11 @@ real boundary before the interaction instruction.
 - [ ] Hex colors remain gentle, readable, and supported.
 - [ ] Any gradient is purposeful and does not dominate the tooltip.
 - [ ] Tiny-font and Unicode glyphs render correctly.
+- [ ] Font choice follows information priority; tiny labels are optional, and
+      requirements, values, and actions remain readable in normal font.
+- [ ] Compact or segmented structure matches the amount of information; empty
+      sections, redundant headings, and unnecessary blank lines are absent.
+- [ ] Width comparisons apply to peer lines, not to short labels versus data.
 - [ ] Vietnamese text failures were classified as encoding, missing glyph,
       fallback font, or inherited styling before editing.
 - [ ] The original encoding, BOM, and newline convention were preserved.
