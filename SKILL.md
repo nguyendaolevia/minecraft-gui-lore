@@ -1,164 +1,125 @@
 ---
 name: minecraft-gui-lore
-description: Design, rewrite, review, and implement player-facing names and lore for Minecraft server inventory GUIs and menu configuration files. Use when Codex works on GUI item names, lore, tooltips, buttons, rewards, status text, line wrapping, legacy or hex colors, gradients, tiny fonts, Unicode decoration, placeholders, or visual consistency in Minecraft plugins and resource packs.
+description: Design, rewrite, review, and implement player-facing names, tooltips, and item lore for Minecraft Java servers. Covers both GUI Menu Lore (buttons, shops, warps, quests, milestones, confirmations) and Carried/Equipped Item Lore (weapons, tools, armor, charms, materials, MMOItems/Nexo/ItemsAdder) with Mojang 1.21.11 pixel metrics, WCAG contrast, Vietnamese safety, and static linting.
 ---
 
-# Minecraft GUI Name & Lore
+# Minecraft GUI & Item Lore
 
-Create concise, readable, visually balanced Minecraft GUI text with controlled
-emphasis, neutral color support, and verified contrast on the actual UI surface.
+Create concise, high-contrast, visually balanced Minecraft GUI tooltips and
+carried-item tooltips with clear 1-second scannability and verified rendering
+safety.
 
-## Required reference
+## Step 0 — Classify the surface (mandatory before reading details)
 
-Read [references/style-guide.md](references/style-guide.md) completely before
-creating, rewriting, reviewing, or implementing any GUI name or lore. Treat it
-as the authoritative default standard.
+| Surface | Read | Linter profile |
+| --- | --- | --- |
+| **GUI Menu / Button** (rebuilt each open: hub, shop, warp, quest, milestone, confirm) | [references/style-guide.md](references/style-guide.md), [references/pattern-library.md](references/pattern-library.md), [references/gallery.md](references/gallery.md) | `scripts/lint_lore.py <file>` (`--profile gui`) |
+| **Carried / Equipped Item** (persisted in NBT: weapon, tool, armor, charm, material, event item) | [references/item-lore.md](references/item-lore.md) + shared technical rules (§2.3, §3, §4.3) in [references/style-guide.md](references/style-guide.md) + [references/gallery.md](references/gallery.md) | `scripts/lint_lore.py <file> --profile item` |
+| **Both** (e.g., shop GUI selling real gear) | Follow `item-lore.md` for the product's persistent lore; follow `style-guide.md` + `pattern-library.md` for the menu wrapper/price/CTA lines | Lint menu & item templates separately |
 
-Read [references/pattern-library.md](references/pattern-library.md) when
-designing or restyling a tooltip that needs more than a plain name and one
-action line. It lists header, grouping, value, and CTA patterns with the
-situations each fits, plus role-based recipes.
+*(For persistent item NBT/RevID migration, also follow `minecraft-custom-item-safety`.)*
+
+## Priority order (GUI Menu)
+
+1. **Technical & safety constraints:** hard code-level validators in the target
+   plugin (e.g., strict `<= 23`-char reject rules), functional placeholders,
+   click semantics, YAML syntax, and Vietnamese encoding safety.
+2. **Decision-first hierarchy & contrast:** 1-second scannability (status/price/
+   requirement in lines 1–2 on decision buttons), WCAG contrast (`>= 4.5:1` for
+   readable text on `#100010`), and single-role color discipline.
+3. **Pixel balance & viewport fit:** pixel budgets (`<= 140 px` data tier,
+   `<= 185 px` description tier; never truncate Vietnamese phrases to hit a
+   character count), group justification (`<= 25%`), width band (`<= 35%`), and
+   vertical height (`<= 14` lines).
+
+*(Item Lore uses its own house style "ARPG gọn, bản dịu": soft hex palette, fixed
+block skeleton, enchant-dependent tier line, and a screen-based height limit,
+all defined in [references/item-lore.md](references/item-lore.md).)*
+
+## Reference map
+
+| File | Role |
+| --- | --- |
+| [references/style-guide.md](references/style-guide.md) | Authoritative GUI rules: pixel budget & Mojang 1.21.11 width table, vertical budget, WCAG `#100010` contrast table, 1-hue-1-role colors, decision-first layout, Vietnamese/encoding safety, title rules, and final checklist. |
+| [references/pattern-library.md](references/pattern-library.md) | Role-based GUI lore patterns tagged `[Non-Pack OK]` / `[Resource Pack]` / `[Unverified]`: `H1–H5`, `B1–B6` (`○`, `•`, thin `|`), `V0–V7` (term registry, resource colors, multi-state urgency, delta rows), `C1–C5` (action-colored & card-accent CTAs, guided locks), recipes, and anti-patterns. |
+| [references/item-lore.md](references/item-lore.md) | User-approved item lore house style (MMOItems, Nexo, ItemsAdder, custom plugins): block skeleton, enchant-vs-tier placement (case A/B), soft hex palette & rarity scale, one highlight per block, trailing Non-Pack / leading Pack stat symbols, gem/set/skill grammar, bright durability footer, `Cúp` term registry, screen-based height (`<= 24` lore+vanilla, `<= 19` if tradeable), vanilla/AH/chat coexistence, NBT lifecycle. |
+| [references/gallery.md](references/gallery.md) | Golden gallery of complete, `lint_lore.py --strict` verified Vietnamese tooltips for every GUI and Item role. Start here instead of improvising from shorthand codes. |
+| [scripts/lint_lore.py](scripts/lint_lore.py) | Static verifier (`--profile gui\|item`, `--tradeable`, `--allow-legacy-item`, `--serializer auto\|minimessage\|legacy\|barehex`, `--hard-max N`, `--vanilla-lines N`, `--api-non-italic`, `--strict`, `--self-test`, `--measure CHARS [--unifont unifont.zip]`); warns `STAT_ICON_WIDTH` on mixed-width stat symbols. |
 
 ## Workflow
 
-1. Inspect the target plugin, configuration format, existing GUI style, audience,
-   placeholders, supported text serializer, file encoding, resource-pack font
-   providers, and actual background behind each text surface. Treat inventory
-   titles and item tooltips separately.
-2. Preserve functional placeholders, click semantics, permissions, and config
-   syntax while changing only player-facing text unless broader changes are
-   requested.
-3. Draft the semantic content before adding colors or decoration. Identify the
-   item's role, then choose compact lore for a simple action or a recipe from
-   the pattern library when the player needs distinct information, rewards, and
-   requirements. Items with the same role share one recipe; vary patterns by
-   role, never randomly, and never spam one pattern across every slot. Rephrase
-   a visibly long line with shorter, equally clear wording before splitting it
-   or compensating with layout.
-4. Prefer about 23 visible Unicode characters or fewer per item display name or
-   data-tier lore line (labels, values, rewards, prices, CTAs); this is a
-   density target, not a hard cap. Wrapped description paragraphs may extend to
-   about 32–36 characters when that yields a better justified block. Count
-   spaces, decoration, and expanded placeholders, excluding formatting syntax;
-   normalize Vietnamese to NFC. Keep seven displayed words as the emergency
-   ceiling for data-tier lines (about nine for description lines). Rephrase
-   first, then wrap naturally. Review commands, click hints, values, and
-   realistic placeholder expansions; do not truncate meaningful data to hit 23.
-5. Mandatory: visually justify consecutive lore lines belonging to the same
-   semantic group, including wrapped continuations and requirement sentences.
-   Rephrase and reflow until their rendered widths are balanced, including the
-   final line. This takes priority over the 23-character target. Then check the
-   whole tooltip: all blocks must sit in one width band, so a block of
-   36-character lines must not be followed by a block of 20-character lines.
-   Equal character counts are not proof; do not pad text with spaces to imitate
-   justification.
-6. Make Minecraft gray (`&7`, `<gray>`, or the serializer-equivalent named
-   color) the default tooltip base. Use white (`&f`/`<white>`) selectively.
-   For a multi-block tooltip, use one primary accent plus one or two supporting
-   accents with stable roles. Do not rely only on the display-name color for
-   every highlighted keyword; combine it with one or two harmonious supporting
-   colors for actions, values, warnings, or future-state notes. Distribute them
-   across meaningful focal points so the tooltip has color rhythm without
-   becoming random. Do not leave an information-heavy description entirely
-   neutral when it contains clear scan keywords such as feature names, resources,
-   destinations, actions, values, or player systems.
-7. For a button with one short, obvious action, consider the optional compact
-   click-hint pattern in the reference guide. Do not apply it mechanically to
-   every button.
-8. Explicitly disable inherited italics for item names and lore unless italics
-   have a deliberate semantic role. Check serializer tags and component
-   decorations because Minecraft item metadata may default to italic. Do not
-   mechanically add legacy `&r`: first verify its effect in the target plugin
-   because a reset can alter component styling or font fallback.
-9. Choose normal or tiny font by information role, not by alternating lines.
-   Keep names, values, rewards, requirements, and instructions readable in normal
-   font; optionally use verified tiny font for short secondary section labels.
-   Follow the reference's font-role guidance and normal-font fallback. Add bold,
-   Unicode, hex colors, or a gradient only with a clear purpose and contrast.
-10. Match the user's requested output format. When editing files, preserve the
-   serializer and quoting style already used by the project.
-11. Before changing Vietnamese text, classify any existing display failure as
-   encoding corruption, a missing glyph, resource-pack font fallback, or
-   inherited styling. Preserve the original file encoding, BOM, and newline
-   convention. Do not introduce a new Unicode decoration or font/reset code
-   without evidence that it renders correctly on the same client surface.
-12. Render in Minecraft when possible. Treat a supplied screenshot as
-   authoritative evidence for contrast, balance, color density, and inherited
-   styling. Otherwise perform static checks and state
-   clearly that glyph support, pixel balance, and final color appearance remain
-   unverified.
+1. **Classify & inspect:** determine GUI Menu vs Carried Item vs Both; check
+   plugin serializer, Non-Pack vs Pack setup, hard code validators, project term
+   & color registries (`V0`/`V1`), encoding/BOM/newlines, and real backgrounds.
+2. **Preserve behavior:** keep placeholders, click actions, permissions, and
+   YAML quoting intact unless asked to change mechanics.
+3. **Draft meaning decision-first:** write natural Vietnamese first (never chop
+   words to chase a character count). Put decision data (status, cost,
+   eligibility) in lines 1–2 on action buttons; match a role from `gallery.md`.
+4. **Balance pixels & height:** check Mojang 1.21.11 pixel budgets (`<= 140 px`
+   data / `<= 185 px` description), group balance (`<= 25%`), and vertical height.
+5. **Style with contrast & discipline:** GUI menus use `&7`/`<gray>` base,
+   readable contrast (`>= 4.5:1`, `#8C8CA0` for flavor/subtitles, never `&8` on
+   `> 3` words), 1 hue = 1 role per tooltip, role-based bold only, explicit
+   non-italic (`<!i>` / `ITALIC=false`), thin `|` / `○` / `•` only (no chunky
+   bars `▍`). Carried items use the soft hex palette instead (no vanilla legacy
+   colors), one highlight per block, and symbols on core stat rows only
+   (`item-lore.md` §3, §5).
+6. **Verify before reporting:** run `python scripts/lint_lore.py <file> --strict`
+   (with `--profile item --vanilla-lines <N>` for gear, plus `--tradeable` for
+   tradeable gear; `--hard-max 23` if plugin enforces a hard cap). Treat in-game
+   screenshots as final authority; disclose clearly when client rendering was
+   not verified.
 
-## Non-negotiable checks
+## Non-negotiable rules
 
-- Treat 23 visible Unicode characters as a preferred density target, not a hard
-  rejection threshold. A justified, meaningful line may be longer.
-- Never exceed seven displayed words on a name or data-tier line, or about nine
-  on a description-tier line.
-- Never accept visibly uneven consecutive related lore lines merely because
-  each fits the character target. Justification within each group is mandatory.
-- Never let content blocks in one tooltip diverge sharply in width; the whole
-  tooltip must read as one even shape.
-- Never use `&l` by default or on descriptions, data rows, long lines, or
-  consecutive lines. Bold is allowed by role for a short name, section label,
-  CTA, or badge (about four words or fewer), at most about two regions per
-  tooltip.
-- Never apply one layout pattern to every slot or stack more than about three
-  structural devices in one tooltip.
-- Never add `&l` to an inventory title by default. Title boldness must be
-  explicitly requested, already established by that exact menu style, or verified
-  as readable on the real title background.
-- Never leave item name or lore italic merely because the renderer inherited
-  Minecraft's default item-meta style.
-- Never assume that 23 characters produce equal pixel width; inspect the
-  proportional Minecraft font and balance neighboring lines visually.
-- Never force short section labels to match the width of data rows, or add
-  headers and blank lines to a simple button merely to fit a segmented template.
-- Never use tiny font to replace rewriting and visual justification or to hide
-  a requirement. Do not use unverified small-cap substitutions for Vietnamese.
-- Never keep a needlessly long phrase when a shorter, equally clear expression
-  would improve balance; rephrase before adding spaces, decoration, or more
-  lines.
-- Never reuse a tooltip palette for an inventory title without checking the
-  title-panel background; a light title needs dark text.
-- Never assume hex, gradient, tiny-font, or Unicode support without checking the
-  plugin, serializer, client, and resource pack.
-- Never diagnose a Vietnamese display problem as a generic “font error” from
-  source text alone. Distinguish mojibake, missing glyphs, font fallback, and
-  inherited styling before editing.
-- Never add a new Unicode symbol, `&r`, font tag, or reset code to a live GUI
-  without same-surface render evidence. Without that evidence, preserve the
-  known-good symbol and style-code set already used by the target GUI.
-- Never rewrite a working Vietnamese config through a different encoding, BOM,
-  or newline convention. Byte-verify remote uploads by decoding and rereading
-  the result with the original encoding.
-- Never color every word independently.
-- Never force every highlight into the same accent when the tooltip contains
-  distinct concepts such as identity, positive action, and time/value. Use up
-  to two supporting accents with explicit reusable roles.
-- Never highlight every keyword with only the item's display-name color when a
-  secondary action/value/warning color would make the tooltip more harmonious
-  and easier to scan.
-- Never let accents dominate the tooltip; neutral gray and white should carry
-  ordinary descriptions and instructions.
-- Never make an entire descriptive paragraph `&7` when it contains meaningful
-  keywords players need to scan quickly. Highlight a small number of semantic
-  anchors while keeping the surrounding copy neutral.
-- Never substitute a blue-gray or pastel slate hex for the requested Minecraft
-  gray base without a verified visual reason.
-- Never color a long status sentence uniformly. Keep its label and connective
-  copy gray, then color the state keyword, value, duration, price, or quantity.
-  A whole-line state color is acceptable only for a compact phrase of roughly
-  four or five words.
-- Never add blank lines without a genuine boundary between content groups.
-- Never claim visual verification if the result was not rendered.
+1. **Hard plugin validators win** over soft pixel/length targets.
+2. **Never truncate natural Vietnamese** (`Số dư hiện`, `Shift + Trái`) to hit
+   23 characters; rephrase cleanly or accept a wider line within pixel budget.
+3. **Decision-first on action buttons:** status, cost, or requirement belongs in
+   lines 1–2 before description (pass the 1-second top-3-lines test).
+4. **One hue = one role per tooltip:** never overload one color for warning,
+   currency, and CTA; separate `V6` urgency colors from `V1` resource colors.
+5. **Enforce contrast (`>= 4.5:1` text):** ban `&1`, `&4`, `&0`, and `< 3:1`
+   hex on readable text; ban `&8` on lines longer than 3 words; use `#404040` or
+   darker (`<= 150 px`) for light-panel inventory titles.
+6. **Enforce balance & height:** `<= 25%` pixel delta inside groups; `<= 35%`
+   width band across GUI content blocks (disabled on `--profile item`); `<= 14`
+   lines for GUI panels; items are limited by the screen (`<= 24` lore + vanilla
+   rows, `<= 19` for tradeable gear to leave AH headroom); no chunky bars (`▍`).
+7. **Control bold & italics:** disable inherited italics (`<!i>` / `ITALIC=false`);
+   bold by role only (`<= 4` words, max ~2 regions/tooltip, never on data rows,
+   descriptions, consecutive lines, or default inventory titles).
+8. **Protect Vietnamese & encoding:** triage defects (mojibake vs missing glyph
+   vs fallback vs italic), preserve encoding/BOM/newlines, never invent
+   unverified glyphs or blind `&r`.
+9. **Keep destructive & bulk actions explicit:** bulk or irreversible actions
+   must show total cost/consequences in the tooltip (or route through a
+   confirmation step), and warning colors must match label semantics.
+10. **Never claim visual verification without an in-game screenshot.**
+11. **Item tier line follows vanilla above-lore components:** tier
+    (`Nhóm · Hạng`) sits on line 2 with the enchant block one blank line below
+    when above-lore vanilla rows (`enchantments`, `stored_enchantments`, `trim`,
+    `dyed_color`, `potion_contents`) are hidden or absent (Case A); when any of
+    those vanilla rows remain visible (drawn under the name), the tier line must
+    move to the bottom and below-lore `attribute_modifiers`/`unbreakable` should
+    be hidden when lore already displays stats (Case B, `item-lore.md` §2.1).
+12. **Stat symbol placement:** on Non-Pack servers, place colored Unicode stat
+    symbols **after** the value (`Tốc đào: +45 ⛏`, BMP characters only — no
+    `U+1Fxxx` emoji) so every stat label aligns flush-left without fighting
+    mixed Unicode glyph widths (`item-lore.md` §5.1). On Pack servers using
+    fixed-width pixel glyphs (or if a server explicitly chooses leading Unicode
+    icons), every leading symbol in a stat block must share one advance width
+    (checked by `STAT_ICON_WIDTH` and `lint_lore.py --measure`, §5.2).
 
 ## Review output
 
-When reviewing existing GUI text:
+When reviewing existing GUI or item text:
 
-- Identify concrete violations and ambiguous rendering assumptions.
-- Distinguish plugin-authored lore from client debug or advanced-tooltip metadata.
-- Propose corrected text rather than only describing problems.
-- Keep unchanged functional syntax intact.
-- Explain only the design decisions that materially affect readability or
-  hierarchy.
+- Cite exact `file:line` violations and separate plugin lore from `F3+H` debug
+  lines.
+- Flag unverified glyphs, placeholder expansions, contrast risks, and layout
+  inconsistencies.
+- Supply ready-to-use, `lint_lore.py`-verified replacement copy preserving
+  functional syntax.
+- Explain only decisions that materially improve 1-second scannability or UX.
