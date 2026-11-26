@@ -172,8 +172,13 @@ into a live GUI without same-surface render evidence.
 - Default tooltip base is Minecraft gray (`&7` / `<gray>`, `8.8:1` on `#100010`),
   with `&f` / `<white>` selectively for clean values. Do not swap `&7` for
   slate/blue-gray unless standardized across the entire server. (Carried items
-  never use this base: they follow the soft hex palette in
+  never use this base: they follow the neutral-body + mood/rarity palette in
   [item-lore.md](item-lore.md) §3.)
+- **Match accent saturation to menu mood & stakes:** use calmer/pastel accents
+  for utility, settings, info, or cozy menus; use richer, higher-saturation
+  jewel tones (Sat `70–90%`, Light `58–72%`, `>= 6:1` on `#100010`) for combat,
+  bosses, high-tier rewards, and urgent warnings — while avoiding raw 100% RGB
+  neon (`#FF0000`, `#00FF00`, `#FFFF00`) that strains the eyes.
 - Highlight 1–2 scan anchors per informative block, then **return to `&7`** so
   trailing copy and punctuation stay neutral. Never color word-by-word.
 - **One hue = one role per tooltip:** never assign the same color to two

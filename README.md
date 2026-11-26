@@ -17,12 +17,12 @@ ItemsAdder, custom plugins).
   (term registry, resource colors, neutral `&8` progress bar, multi-state
   urgency, upgrade deltas), `C1–C5` (action-colored & card-accent CTAs, guided
   locks), and role recipe index.
-- `references/item-lore.md` — user-approved item lore house style "ARPG gọn,
-  bản dịu": block skeleton, enchant-vs-tier placement (case A tier on top /
-  case B tier at the bottom), soft hex palette & rarity scale, one highlight per
-  block, stat symbol registry, gem/set/skill grammar, bright durability,
-  `Cúp` term registry, screen-based height (`<= 24`, tradeable `<= 19`), NBT
-  lifecycle.
+- `references/item-lore.md` — item lore house style ("ARPG gọn — nền dịu, điểm
+  nhấn có cảm xúc"): block skeleton, enchant-vs-tier placement (case A/B),
+  neutral body + saturation scaling by rarity & mood (when to use pastel vs rich
+  jewel/elemental accents), one highlight per block, trailing Non-Pack / leading
+  Pack stat symbols, gem/set/skill grammar, bright durability, `Cúp` term
+  registry, screen-based height (`<= 24`, tradeable `<= 19`), NBT lifecycle.
 - `references/gallery.md` — golden gallery (`G1–G8` GUI + `I1–I6` Item) where
   every tooltip is strictly verified by `lint_lore.py --strict`.
 - `scripts/lint_lore.py` — static verifier using official Mojang Java 1.21.11

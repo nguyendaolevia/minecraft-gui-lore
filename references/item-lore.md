@@ -4,11 +4,14 @@ Dedicated standard for **persistent, player-held items**: weapons, pickaxes,
 tools, armor, charms, boss souls, consumables, materials, cosmetics, and event
 collectibles (MMOItems, Nexo, ItemsAdder, custom item plugins).
 
-House style: **"ARPG gọn, bản dịu"** (soft clean ARPG). Approved by the user on
-2026-11-26 after side-by-side mockups. A short positional skeleton, a soft hex
-palette instead of vanilla legacy colors, one symbol per core stat row, and
-**one highlight per block**. Gallery `I1–I6` in [gallery.md](gallery.md) are the
-canonical renders of this standard.
+House style: **"ARPG gọn — nền dịu, điểm nhấn có cảm xúc"** (clean ARPG with a
+calm neutral body and purposeful accent saturation). A short positional
+skeleton, calm neutral body text (`#A9A6B4` / `#ECE9F2` / `#8A8597`), one
+highlight per block, and **intentional color saturation** matched to item
+rarity, material, and mood — pastel/soft where calm, rich jewel/elemental tones
+where powerful or fierce, never flat pastel everywhere and never raw RGB neon.
+Gallery `I1–I6` in [gallery.md](gallery.md) are the canonical renders of this
+standard.
 
 Item lore is **fundamentally different** from GUI menu lore:
 - Persisted in item NBT/DataComponents (template changes need migration/RevID
@@ -26,7 +29,7 @@ contrast on `#100010` (§4.3). Lint with `scripts/lint_lore.py --profile item`.
 
 1. [Priority order](#1-priority-order)
 2. [Block skeleton & spacing](#2-block-skeleton--spacing)
-3. [Soft palette & highlight budget](#3-soft-palette--highlight-budget)
+3. [Palette, saturation & mood discipline](#3-palette-saturation--mood-discipline)
 4. [Identity line, rarity & term registry](#4-identity-line-rarity--term-registry)
 5. [Stats & stat symbols](#5-stats--stat-symbols)
 6. [Gems, set bonus & skills](#6-gems-set-bonus--skills)
@@ -137,55 +140,92 @@ whole gear line and records them in its `V0` term registry.
 
 ---
 
-## 3. Soft palette & highlight budget
+## 3. Palette, saturation & mood discipline
 
 **Do not use vanilla legacy colors** (`&a #55FF55`, `&b #55FFFF`, `&e #FFFF55`,
-`&7 #AAAAAA`, `&8 #555555`…) in item lore: the user finds them harsh. Use this
-palette (contrast measured on `#100010`). A project color registry may override
-it; never mix the two in one server.
+`&7 #AAAAAA`, `&8 #555555`…) or **raw 100%-channel RGB neon** (`#FF0000`,
+`#00FF00`, `#0000FF`, `#FFFF00`, `#FF00FF`) in item lore: they vibrate on
+`#100010` and look cheap.
+
+At the same time, **do not flatten every item into washed-out pastel**. Keep
+80% of the tooltip (labels, values, enchants, flavor) **calm & neutral**, then
+**scale saturation intentionally** by rarity, item theme, and emotion so a
+volcanic endgame sword feels fierce while a cozy starter charm feels gentle.
+
+### 3.1 When to use Pastel vs Rich/Vibrant accents
+
+| Register | Saturation / Lightness | Use when | Avoid when |
+| --- | --- | --- | --- |
+| **Calm Neutral** | Sat `5–12%`, Light `55–93%` | Body text: labels (`#A9A6B4`), values (`#ECE9F2`), muted/flavor (`#8A8597`), separators (`#5E596B`) | Never for major focal identity on rare+ gear |
+| **Soft / Pastel** | Sat `35–55%`, Light `72–82%` | Low tiers (`Thường`/`Khá`), cozy/farming/healing/support items, cosmetics, starter tools, utility sub-stats | Endgame weapons, boss drops, fire/lava/void themes, urgent warnings (feels weak/washed-out) |
+| **Rich / Vibrant** *(Jewel & Elemental)* | Sat `70–90%`, Light `58–72%` | High tiers (`Sử Thi`/`Huyền Thoại`/`Thần Thoại`), combat weapons, elemental/boss themes (fire, frost, void, venom), active skills, combat stat icons, low-durability/error alerts | Spreading across full sentences or every line (keep strictly to the 1 highlight per block) |
+| **Raw RGB Neon** *(Banned)* | Sat `100%`, pure primary (`#FF0000`, `#00FF00`, `#FFFF00`) | **Never** — causes eye strain and visual clash | Always replace with Rich/Vibrant equivalents (`#FF5C5C`, `#4ADE80`, `#FACC15`) |
+
+### 3.2 Base structural & status palette (WCAG measured on `#100010`)
 
 | Role | Hex | Legacy hex | Contrast | Used for |
 | --- | --- | --- | ---: | --- |
-| Label | `#A9A6B4` | `&#A9A6B4` | 8.5:1 | Stat labels, effect text, `Nhóm` |
-| Value | `#E8E4EE` | `&#E8E4EE` | 16.3:1 | Numbers, `+N`, key words inside effects |
+| Label | `#A9A6B4` | `&#A9A6B4` | 8.5:1 | Stat labels, effect text, `Nhóm` (always calm) |
+| Value | `#ECE9F2` | `&#ECE9F2` | 17.0:1 | Numbers, `+N`, key words inside effects (clean crisp white-lilac) |
 | Muted | `#8A8597` | `&#8A8597` | 5.7:1 | Cooldown, inactive set tier, flavor, binding, `/max` |
 | Separator | `#5E596B` | `&#5E596B` | 3.0:1 | Only `·` and empty socket `◇`, never words |
-| Ability | `#8CC8E8` | `&#8CC8E8` | 11.2:1 | Skill name only |
-| Active | `#8FD9A8` | `&#8FD9A8` | 12.3:1 | Active set-bonus tier, requirement met |
-| Currency | `#E6CF8F` | `&#E6CF8F` | 13.3:1 | Prices (AH/shop wrappers), never stats |
-| Negative | `#EE8A8A` | `&#EE8A8A` | 8.4:1 | Low durability, unmet requirement, expiring |
+| Ability | `#38BDF8` *(or theme)* | `&#38BDF8` | 9.5:1 | Skill name only (may shift to `#FF7A2F` fire, `#C084FC` void, `#34D399` nature) |
+| Active | `#4ADE80` | `&#4ADE80` | 11.7:1 | Active set-bonus tier, requirement met (clear positive signal) |
+| Currency | `#F5C451` | `&#F5C451` | 12.5:1 | Prices (AH/shop wrappers), never stats |
+| Negative | `#FF5C5C` | `&#FF5C5C` | 6.7:1 | Low durability (`Cần sửa`), unmet requirement, expiring (urgent red, never weak pink) |
 
-**Rarity scale** (also the name color):
+### 3.3 Rarity scale (saturation escalates with prestige)
 
-| Hạng | Hex | Contrast |
-| --- | --- | ---: |
-| Thường | `#E8E4EE` | 16.3:1 |
-| Khá | `#9BD8A4` | 12.4:1 |
-| Hiếm | `#8DB8F0` | 10.0:1 |
-| Sử Thi | `#C3A3F5` | 9.6:1 |
-| Huyền Thoại | `#F0C27A` | 12.3:1 |
-| Thần Thoại | `#F29BB0` | 9.8:1 |
+Low tiers stay softer so high tiers visibly "light up" with jewel richness:
 
-Gradients: highest tier only, name only, between two soft tones.
+| Hạng | Register | Hex | Contrast |
+| --- | --- | --- | ---: |
+| Thường | Neutral | `#E4E2EC` | 15.9:1 |
+| Khá | Soft | `#86D993` | 12.0:1 |
+| Hiếm | Clean medium | `#6CA8F8` | 8.4:1 |
+| Sử Thi | Rich amethyst | `#B878FF` | 7.0:1 |
+| Huyền Thoại | Rich gold-amber | `#F5A623` | 10.1:1 |
+| Thần Thoại | Rich ruby-rose | `#FF5C8A` | 6.9:1 |
 
-**Highlight budget: one per block.** Everything else is Label/Value/Muted.
+### 3.4 Elemental & mood name palettes (optional for themed / boss / endgame gear)
+
+By default, item names use the rarity color. For signature elemental, boss, or
+endgame gear, the **name** (and skill title) may take its theme color while line
+2 (`Nhóm · Hạng`) holds the canonical rarity color — keeping both emotional
+identity and instant rarity readability:
+
+| Theme / Mood | Primary Hex | Contrast | Optional 2-tone Gradient (highest tier only) | Feel |
+| --- | --- | ---: | --- | --- |
+| Lửa / Dung Nham / Nether | `#FF7A2F` | 7.9:1 | `#FF5C38` → `#FFB347` | Fierce, molten, aggressive |
+| Băng / Thủy / Vương Quyền | `#38BDF8` / `#60A5FA` | 9.5:1 / 8.0:1 | `#38BDF8` → `#A5F3FC` | Glacial, sharp, regal |
+| Huyết / Chiến Đấu / Boss | `#FF5C5C` | 6.7:1 | `#FF4D6D` → `#FF9A8B` | Lethal, high-stakes |
+| Độc / Rừng / Ngọc Lục Bảo | `#34D399` | 10.6:1 | `#10B981` → `#86EFAC` | Venomous or vibrant nature |
+| Hư Không / Ám Ảnh / Ma Pháp | `#C084FC` | 7.7:1 | `#A855F7` → `#F0ABFC` | Arcane, mysterious |
+| Ấm Áp / Nông Trại / Hỗ Trợ | `#9FD3A8` / `#E6CF8F` | 12.2:1 / 13.3:1 | *(Keep solid pastel — no gradient needed)* | Relaxed, cozy, approachable |
+
+Gradients: highest tier / signature centerpiece gear only, **name only**,
+between two harmonious tones (both `>= 6.5:1` on `#100010`).
+
+**Highlight budget: one per block.** Because 80% of the tooltip stays neutral,
+rich highlights look crisp and deliberate instead of noisy.
 
 | Block | The one highlight |
 | --- | --- |
-| Identity | Rarity color on name and on the rarity word |
+| Identity | Rarity or theme color on name; rarity color on the rarity word |
 | Enchants | None: name Label, level Value |
-| Core stats | The stat symbol (values stay `#E8E4EE`, never colored) |
+| Core stats | The stat symbol (values stay `#ECE9F2`, never colored) |
 | Gems | Gem colors |
-| Set bonus | The active tier line (`#8FD9A8`) |
-| Skill | Skill name (`#8CC8E8`) |
-| Footer | Durability value (bright `#E8E4EE`, `#EE8A8A` when low) |
+| Set bonus | The active tier line (`#4ADE80`) |
+| Skill | Skill name (Ability `#38BDF8` or item's theme accent) |
+| Footer | Durability value (bright `#ECE9F2`, `#FF5C5C` when low) |
 
 ---
 
 ## 4. Identity line, rarity & term registry
 
-- **Name:** rarity color. Upgrade level follows as ` +3` in Value color, no
-  brackets. Keep names `<= ~120 px` (about 20 characters) because `[item]` chat
+- **Name:** rarity color by default, or the item's elemental/mood theme color
+  (§3.4) for signature boss/endgame gear while line 2 holds the rarity color.
+  Upgrade level follows as ` +3` in Value color, no brackets. Keep names `<= ~120 px` (about 20 characters) because `[item]` chat
   and AH show the name inline. No per-stat upgrade deltas such as `(+6)` in the
   tooltip; show those in the upgrade menu.
 - **Line 2:** `<Nhóm> · <Hạng>`: group in Label, `·` in Separator, rarity word
@@ -249,17 +289,18 @@ column straight even when symbols have different advances (e.g., `⛏` 9 px vs
   in `minecraft-1.21.11-client.jar` `default.json` → `nonlatin_european.png`
   and `unifont.zip` 17.0.01):
 
-| Stat | Symbol | Source (Java 1.21.11) | Advance | Color |
+| Stat | Symbol | Source (Java 1.21.11) | Advance | Color (Rich / Calm) |
 | --- | --- | --- | ---: | --- |
-| Tốc đào | `⛏` | Default bitmap (`nonlatin_european.png`) | 9 px | `#E3C48A` |
-| May mắn / Gia tài | `✿` or `☘` | Unifont | 8 / 7 px | `#9FD3A8` |
-| Độ cứng | `⛰` | Unifont | 8 px | `#A9BCD6` |
-| Sát thương | `⚔` | Default bitmap (`nonlatin_european.png`) | 8 px | `#EE9A8A` |
-| Chí mạng / ST Boss | `✷` or `☠` | Unifont / Default bitmap | 8 / 8 px | `#E8B4D8` |
-| Tốc đánh / Tốc chạy | `⚡` or `➾` | Default bitmap / Unifont | 6 / 8 px | `#B9E08F` |
-| Phòng thủ | `⛨` or `⬣` | Default bitmap / Unifont | 8 / 8 px | `#A9BCD6` |
-| Máu | `❤` | Default bitmap (`nonlatin_european.png`) | 8 px | `#F2A7A7` |
-| Kinh nghiệm | `✦` | Unifont | 8 px | `#C8E6A0` |
+| Tốc đào | `⛏` | Default bitmap (`nonlatin_european.png`) | 9 px | `#F5B942` (warm amber) |
+| May mắn / Gia tài | `✿` or `☘` | Unifont | 8 / 7 px | `#34D399` (emerald) |
+| Độ cứng | `⛰` | Unifont | 8 px | `#93B4DC` (slate-steel) |
+| Nổ lan / Phá khối | `✹` | Unifont | 8 px | `#FF6B4A` (ember orange) |
+| Sát thương | `⚔` | Default bitmap (`nonlatin_european.png`) | 8 px | `#FF5C5C` (combat crimson) |
+| Chí mạng / ST Boss | `✷` or `☠` | Unifont / Default bitmap | 8 / 8 px | `#E879F9` (vivid magenta) |
+| Tốc đánh / Tốc chạy | `⚡` or `➾` | Default bitmap / Unifont | 6 / 8 px | `#FACC15` (electric gold) |
+| Phòng thủ | `⛨` or `⬣` | Default bitmap / Unifont | 8 / 8 px | `#7DD3FC` (sky shield) |
+| Máu | `❤` | Default bitmap (`nonlatin_european.png`) | 8 px | `#FB7185` (vital rose-red) |
+| Kinh nghiệm | `✦` | Unifont | 8 px | `#A3E635` (fresh lime) |
 
 - **If a Non-Pack server still chooses leading Unicode icons** before stat
   labels (`<symbol> <Label>: <Value>`), every leading symbol in that stat block
@@ -346,9 +387,9 @@ No blank lines inside the footer. Order: flavor → durability → binding/origi
   mechanic numbers. Proper names use Sino-Vietnamese canon (`Hàn Băng Vương`).
 - **Durability:** its own line, always bright, because it asks the player to do
   something (repair):
-  - Normal: `<#A9A6B4>Độ bền: <#E8E4EE>1.250<#8A8597>/1.561`
+  - Normal: `<#A9A6B4>Độ bền: <#ECE9F2>1.250<#8A8597>/1.561`
   - Low (`<= 10%`, or the project threshold):
-    `<#A9A6B4>Độ bền: <#EE8A8A>86<#8A8597>/1.561 <#EE8A8A>· Cần sửa`
+    `<#A9A6B4>Độ bền: <#FF5C5C>86<#8A8597>/1.561 <#FF5C5C>· Cần sửa`
 - **Binding / origin / expiry** (Muted unless urgent):
   - `Gắn hồn · Không thể giao dịch`
   - `Rơi từ Hàn Băng Vương · Gắn hồn`
@@ -420,26 +461,26 @@ Approved render (`gallery.md` `I2`): 19 lore lines, passes
 item_cup_tinh_thach:
   material: NETHERITE_PICKAXE
   item_flags: [HIDE_ATTRIBUTES]   # 1.21.5+: tooltip_display hides attribute_modifiers
-  display_name: "<!i><#C3A3F5>Cúp Tinh Thạch <#E8E4EE>+3"
+  display_name: "<!i><#B878FF>Cúp Tinh Thạch <#ECE9F2>+3"
   lore:
-    - "<!i><#A9A6B4>Công cụ <#5E596B>· <#C3A3F5>Sử Thi"
+    - "<!i><#A9A6B4>Công cụ <#5E596B>· <#B878FF>Sử Thi"
     - ""
-    - "<!i><#A9A6B4>Tốc đào: <#E8E4EE>+45 <#E3C48A>⛏"
-    - "<!i><#A9A6B4>May mắn: <#E8E4EE>+12% <#9FD3A8>✿"
-    - "<!i><#A9A6B4>Độ cứng: <#E8E4EE>Bậc 4 <#A9BCD6>⛰"
+    - "<!i><#A9A6B4>Tốc đào: <#ECE9F2>+45 <#F5B942>⛏"
+    - "<!i><#A9A6B4>May mắn: <#ECE9F2>+12% <#34D399>✿"
+    - "<!i><#A9A6B4>Độ cứng: <#ECE9F2>Bậc 4 <#93B4DC>⛰"
     - ""
-    - "<!i><#A9A6B4>Ngọc khảm: <#9FD3A8>◆ <#8CC8E8>◆ <#5E596B>◇"
+    - "<!i><#A9A6B4>Ngọc khảm: <#34D399>◆ <#38BDF8>◆ <#5E596B>◇"
     - ""
     - "<!i><#A9A6B4>Bộ Tinh Thạch <#8A8597>(2/4)"
-    - "<!i><#8FD9A8>2 món: +10% tốc đào"
+    - "<!i><#4ADE80>2 món: +10% tốc đào"
     - "<!i><#8A8597>4 món: +1 cấp Gia Tài"
     - ""
-    - "<!i><#8CC8E8>Bùng Nổ Quặng <#8A8597>· Chuột phải"
-    - "<!i><#A9A6B4>Đào khối 3x3 trong <#E8E4EE>5 giây<#A9A6B4>."
+    - "<!i><#38BDF8>Bùng Nổ Quặng <#8A8597>· Chuột phải"
+    - "<!i><#A9A6B4>Đào khối 3x3 trong <#ECE9F2>5 giây<#A9A6B4>."
     - "<!i><#8A8597>Hồi chiêu: 60 giây"
     - ""
     - "<!i><italic><#8A8597>Rèn ở lò sâu nhất Mỏ Rùa."
-    - "<!i><#A9A6B4>Độ bền: <#E8E4EE>1.250<#8A8597>/1.561"
+    - "<!i><#A9A6B4>Độ bền: <#ECE9F2>1.250<#8A8597>/1.561"
     - "<!i><#8A8597>Gắn hồn · Không thể giao dịch"
 ```
 
@@ -462,8 +503,9 @@ Legacy-hex plugins write the same lines with `&#RRGGBB` (for example
       = tier is the last line (`attribute_modifiers`/`unbreakable` hidden if stats
       are in lore) and pure Case B lore opens with a blank line. Same case for the
       whole item family.
-- [ ] **Palette:** soft hex from §3 only, no vanilla legacy colors; `#5E596B`
-      only on `·`/`◇`.
+- [ ] **Palette & mood:** neutral body (`#A9A6B4`/`#ECE9F2`/`#8A8597`) + intentional
+      accent saturation matched to rarity/theme (§3.1–§3.4); no vanilla legacy
+      colors or raw 100% RGB neon; `#5E596B` only on `·`/`◇`.
 - [ ] **Highlights:** exactly one highlight per block; stat values not colored.
 - [ ] **Symbols:** only on core stat rows, from the registry, render-checked in
       game before server-wide use.

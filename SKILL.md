@@ -32,7 +32,8 @@ safety.
    character count), group justification (`<= 25%`), width band (`<= 35%`), and
    vertical height (`<= 14` lines).
 
-*(Item Lore uses its own house style "ARPG gọn, bản dịu": soft hex palette, fixed
+*(Item Lore uses its own house style "ARPG gọn — nền dịu, điểm nhấn có cảm xúc":
+calm neutral body with purposeful saturation matched to rarity & item mood, fixed
 block skeleton, enchant-dependent tier line, and a screen-based height limit,
 all defined in [references/item-lore.md](references/item-lore.md).)*
 
@@ -42,7 +43,7 @@ all defined in [references/item-lore.md](references/item-lore.md).)*
 | --- | --- |
 | [references/style-guide.md](references/style-guide.md) | Authoritative GUI rules: pixel budget & Mojang 1.21.11 width table, vertical budget, WCAG `#100010` contrast table, 1-hue-1-role colors, decision-first layout, Vietnamese/encoding safety, title rules, and final checklist. |
 | [references/pattern-library.md](references/pattern-library.md) | Role-based GUI lore patterns tagged `[Non-Pack OK]` / `[Resource Pack]` / `[Unverified]`: `H1–H5`, `B1–B6` (`○`, `•`, thin `|`), `V0–V7` (term registry, resource colors, multi-state urgency, delta rows), `C1–C5` (action-colored & card-accent CTAs, guided locks), recipes, and anti-patterns. |
-| [references/item-lore.md](references/item-lore.md) | User-approved item lore house style (MMOItems, Nexo, ItemsAdder, custom plugins): block skeleton, enchant-vs-tier placement (case A/B), soft hex palette & rarity scale, one highlight per block, trailing Non-Pack / leading Pack stat symbols, gem/set/skill grammar, bright durability footer, `Cúp` term registry, screen-based height (`<= 24` lore+vanilla, `<= 19` if tradeable), vanilla/AH/chat coexistence, NBT lifecycle. |
+| [references/item-lore.md](references/item-lore.md) | User-approved item lore house style (MMOItems, Nexo, ItemsAdder, custom plugins): block skeleton, enchant-vs-tier placement (case A/B), neutral body + purposeful saturation by rarity & mood (pastel vs rich jewel/elemental, no raw RGB neon), one highlight per block, trailing Non-Pack / leading Pack stat symbols, gem/set/skill grammar, bright durability footer, `Cúp` term registry, screen-based height (`<= 24` lore+vanilla, `<= 19` if tradeable), vanilla/AH/chat coexistence, NBT lifecycle. |
 | [references/gallery.md](references/gallery.md) | Golden gallery of complete, `lint_lore.py --strict` verified Vietnamese tooltips for every GUI and Item role. Start here instead of improvising from shorthand codes. |
 | [scripts/lint_lore.py](scripts/lint_lore.py) | Static verifier (`--profile gui\|item`, `--tradeable`, `--allow-legacy-item`, `--serializer auto\|minimessage\|legacy\|barehex`, `--hard-max N`, `--vanilla-lines N`, `--api-non-italic`, `--strict`, `--self-test`, `--measure CHARS [--unifont unifont.zip]`); warns `STAT_ICON_WIDTH` on mixed-width stat symbols. |
 
@@ -62,9 +63,10 @@ all defined in [references/item-lore.md](references/item-lore.md).)*
    readable contrast (`>= 4.5:1`, `#8C8CA0` for flavor/subtitles, never `&8` on
    `> 3` words), 1 hue = 1 role per tooltip, role-based bold only, explicit
    non-italic (`<!i>` / `ITALIC=false`), thin `|` / `○` / `•` only (no chunky
-   bars `▍`). Carried items use the soft hex palette instead (no vanilla legacy
-   colors), one highlight per block, and symbols on core stat rows only
-   (`item-lore.md` §3, §5).
+   bars `▍`). Carried items keep a calm neutral body (`#A9A6B4`/`#ECE9F2`/`#8A8597`)
+   and scale accent saturation by rarity & mood — pastel for low-tier/cozy/utility,
+   rich jewel/elemental tones for epic+/combat/boss/alerts, never raw RGB neon or
+   vanilla legacy colors (`item-lore.md` §3, §5).
 6. **Verify before reporting:** run `python scripts/lint_lore.py <file> --strict`
    (with `--profile item --vanilla-lines <N>` for gear, plus `--tradeable` for
    tradeable gear; `--hard-max 23` if plugin enforces a hard cap). Treat in-game

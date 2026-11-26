@@ -298,7 +298,7 @@ contains a complete, `lint_lore.py --strict` verified tooltip for every role:
 | Shop offer / consumable | Decision-first | `H2`, `B1 (\|)` + `M-2`, `C1`/`C4` | `G6` |
 | Upgrade / enchant entry | Decision-first | `H1`, `B3` + `B2 (\|)`, `V7`, `C2` | `G7` |
 | Confirmation (destructive) | Decision-first | Consequence + warning CTA | `G8` |
-| Carried / equipped gear | House style "ARPG gọn, bản dịu" | See [item-lore.md](item-lore.md) | `I1–I6` |
+| Carried / equipped gear | ARPG gọn (nền dịu, điểm nhấn theo cảm xúc) | See [item-lore.md](item-lore.md) | `I1–I6` |
 
 ---
 
